@@ -1,0 +1,452 @@
+.slide-in {
+  -webkit-animation: slide-in-anim 1s ease-out;
+          animation: slide-in-anim 1s ease-out;
+}
+
+.slide-up {
+  -webkit-animation: slide-up-anim 1s ease-out;
+          animation: slide-up-anim 1s ease-out;
+}
+
+.slide-down {
+  -webkit-animation: slide-down-anim 1s ease-in;
+          animation: slide-down-anim 1s ease-in;
+}
+
+.loading-screen {
+  position: relative;
+  background-image: url(https://www.premierhealth.com/Content/images/loading.gif);
+  background-size: contain;
+  width: 150px;
+  height: 150px;
+  top: -10%;
+}
+
+.show {
+  display: block;
+}
+
+.hide {
+  display: none;
+}
+
+.game-area {
+  margin-top: 15px;
+  width: 1600px;
+  height: 800px;
+}
+
+.game-area .host-btn {
+  height: 100%;
+  width: 100%;
+  background-color: var(--success);
+  color: white;
+  font-size: 30px;
+}
+
+.game-area .host-btn:hover {
+  opacity: 0.9;
+}
+
+.game-area .fb-image {
+  width: 100%;
+  height: 100%;
+  background-color: lightgrey;
+}
+
+.game-area .fb-image img {
+  height: 100%;
+  width: 100%;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+.game-area .game-board-header {
+  overflow: hidden;
+  background-color: var(--secondary);
+  -webkit-filter: drop-shadow(0 0 5px black);
+          filter: drop-shadow(0 0 5px black);
+  border-radius: 10px;
+  width: 100%;
+  text-align: center;
+  padding: 0;
+}
+
+.game-area .game-board-header .round-title {
+  background-color: grey;
+  height: 100%;
+  font-size: 45px;
+  color: white;
+}
+
+.game-area .game-board {
+  margin: 0 20px;
+  width: 60%;
+  height: 100%;
+  background-color: var(--secondary);
+  -webkit-filter: drop-shadow(0 0 5px black);
+          filter: drop-shadow(0 0 5px black);
+  border-radius: 10px;
+  padding: 5px;
+}
+
+.game-area .game-board .answer {
+  position: absolute;
+}
+
+.game-area .game-board .answer .text-container {
+  -webkit-transition: all 0.2s;
+  transition: all 0.2s;
+  opacity: 0.5;
+  background-color: var(--primary);
+  border-radius: 15px;
+  padding: 5px 15px;
+  color: white;
+  font-size: 20px;
+  position: relative;
+}
+
+.game-area .game-board .answer .text-container:hover, .game-area .game-board .answer .text-container:focus {
+  cursor: pointer;
+  opacity: 1;
+  -webkit-transform: scale(1.2);
+          transform: scale(1.2);
+}
+
+.game-area .game-board .answer .text-container span {
+  display: inline-block;
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+.game-area .game-board .answer .text-container.active {
+  opacity: 1;
+  -webkit-transform: scale(1.2);
+          transform: scale(1.2);
+}
+
+.game-area .game-board .answer .reactions {
+  width: 110px;
+  height: 60px;
+  position: absolute;
+  top: -60px;
+  left: calc(100% - 40px);
+  -webkit-transition: 0.4s ease-in;
+  transition: 0.4s ease-in;
+  background-color: lightblue;
+  border-radius: 30px;
+  padding: 5px;
+  -webkit-animation: bop-in-anim 0.5s;
+          animation: bop-in-anim 0.5s;
+}
+
+.game-area .game-board .answer .reactions .up,
+.game-area .game-board .answer .reactions .down {
+  -webkit-transition: all 0.1s;
+  transition: all 0.1s;
+  position: relative;
+  width: 50px;
+  height: 50px;
+  padding: 10px;
+  float: left;
+}
+
+.game-area .game-board .answer .reactions .up img,
+.game-area .game-board .answer .reactions .down img {
+  -o-object-fit: contain;
+     object-fit: contain;
+  height: 100%;
+  width: 100%;
+}
+
+.game-area .game-board .answer .reactions .up:hover,
+.game-area .game-board .answer .reactions .down:hover {
+  -webkit-transform: scale(1.2);
+          transform: scale(1.2);
+  cursor: pointer;
+}
+
+.game-area .game-board .answer .reactions .down {
+  -webkit-transform: scaleY(-1);
+          transform: scaleY(-1);
+}
+
+.game-area .game-board .game-input {
+  position: fixed;
+  width: 300px;
+  height: 50px;
+  -webkit-transition: width 0.2s ease-out, opacity 1s ease-in-out;
+  transition: width 0.2s ease-out, opacity 1s ease-in-out;
+}
+
+.game-area .game-board .game-input.form .form-control {
+  position: absolute;
+  z-index: 1;
+  border-radius: 50px;
+  border: none;
+  background-color: #f0f2f5;
+  color: #65676b;
+  height: 100%;
+  width: 100%;
+}
+
+.game-area .game-board .game-input.form .form-control .submit {
+  background-color: var(--primary);
+}
+
+.game-area .game-board .game-input.form .form-control:focus {
+  outline: none;
+}
+
+.game-area .game-board .game-input.form .btn {
+  z-index: 2;
+  position: absolute;
+  background-color: var(--primary);
+  height: 80%;
+  width: 80px;
+  border-radius: 50px;
+  top: 0;
+  margin: 5px;
+  left: calc(100% - 90px);
+  color: white;
+}
+
+.game-area .game-board .game-input.form .drag {
+  z-index: 0;
+  position: absolute;
+  width: 80px;
+  height: 40px;
+  left: 35%;
+  top: -40%;
+  background-color: lightblue;
+  border-radius: 40px;
+  cursor: move;
+}
+
+.game-area .game-board .game-input.form .drag img {
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  width: 50%;
+  height: 100%;
+  background-size: contain;
+}
+
+.game-area .player-list {
+  background-color: var(--secondary);
+  -webkit-filter: drop-shadow(0 0 5px black);
+          filter: drop-shadow(0 0 5px black);
+  width: 20%;
+  height: 100%;
+  border-radius: 10px;
+  padding: 5px;
+}
+
+.game-area .player-list h1 {
+  text-align: center;
+  color: gray;
+}
+
+.game-area .player-list .highlight {
+  background-color: var(--primary);
+  color: white;
+}
+
+.game-area .player-list .player-list-item {
+  -webkit-transition: all 0.4s;
+  transition: all 0.4s;
+  height: 11%;
+  padding: 5px 15px;
+  vertical-align: center;
+  border: solid rgba(128, 128, 128, 0.171) 1px;
+  margin-bottom: 5px;
+  border-radius: 10px;
+  -webkit-animation: fade-in-anim 1s ease-in;
+          animation: fade-in-anim 1s ease-in;
+}
+
+.game-area .player-list .player-list-item .player-profile-pic {
+  border-radius: 10px;
+  height: 100%;
+}
+
+.game-area .player-list .player-list-item .name {
+  font-size: large;
+  margin-left: 20px;
+  font-weight: bolder;
+}
+
+.game-area .player-list .player-list-item .votes {
+  float: right;
+  width: 40%;
+  height: 100%;
+}
+
+.game-area .player-list .player-list-item .votes .upvote,
+.game-area .player-list .player-list-item .votes .downvote {
+  position: relative;
+  float: left;
+  width: 50%;
+}
+
+.game-area .player-list .player-list-item .votes .upvote img,
+.game-area .player-list .player-list-item .votes .downvote img {
+  width: 80%;
+  height: 80%;
+  -o-object-fit: contain;
+     object-fit: contain;
+}
+
+.game-area .player-list .player-list-item .votes .upvote .score,
+.game-area .player-list .player-list-item .votes .downvote .score {
+  position: absolute;
+  top: 45px;
+  color: greenyellow;
+  -webkit-transform: translateX(15px);
+          transform: translateX(15px);
+}
+
+.game-area .player-list .player-list-item .votes .downvote .score {
+  color: red;
+}
+
+@-webkit-keyframes slide-in-anim {
+  from {
+    -webkit-transform: translateX(-100vw);
+            transform: translateX(-100vw);
+  }
+  to {
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-anim {
+  from {
+    -webkit-transform: translateX(-100vw);
+            transform: translateX(-100vw);
+  }
+  to {
+    -webkit-transform: translateX(0);
+            transform: translateX(0);
+  }
+}
+
+@-webkit-keyframes slide-down-anim {
+  from {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+  }
+  to {
+    -webkit-transform: translateY(-100vh);
+            transform: translateY(-100vh);
+  }
+}
+
+@keyframes slide-down-anim {
+  from {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+  }
+  to {
+    -webkit-transform: translateY(-100vh);
+            transform: translateY(-100vh);
+  }
+}
+
+@-webkit-keyframes fade-in-anim {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-in-anim {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes slide-up-anim {
+  from {
+    -webkit-transform: translateY(110vh);
+            transform: translateY(110vh);
+  }
+  to {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+  }
+}
+
+@keyframes slide-up-anim {
+  from {
+    -webkit-transform: translateY(110vh);
+            transform: translateY(110vh);
+  }
+  to {
+    -webkit-transform: translateY(0);
+            transform: translateY(0);
+  }
+}
+
+@-webkit-keyframes shrink-fade-away-anim {
+  from {
+    width: 300px;
+    opacity: 1;
+  }
+  to {
+    width: 50;
+    opacity: 0;
+  }
+}
+
+@keyframes shrink-fade-away-anim {
+  from {
+    width: 300px;
+    opacity: 1;
+  }
+  to {
+    width: 50;
+    opacity: 0;
+  }
+}
+
+@-webkit-keyframes bop-in-anim {
+  0% {
+    -webkit-transform: scale(0);
+            transform: scale(0);
+  }
+  80% {
+    -webkit-transform: scale(1.2);
+            transform: scale(1.2);
+  }
+  100% {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+}
+
+@keyframes bop-in-anim {
+  0% {
+    -webkit-transform: scale(0);
+            transform: scale(0);
+  }
+  80% {
+    -webkit-transform: scale(1.2);
+            transform: scale(1.2);
+  }
+  100% {
+    -webkit-transform: scale(1);
+            transform: scale(1);
+  }
+}
+/*# sourceMappingURL=Room.css.map */

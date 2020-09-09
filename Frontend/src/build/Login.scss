@@ -1,0 +1,61 @@
+.w-fill {
+    width: 100%;
+}
+.btn {
+    font-weight: bold;
+}
+.hidden {
+    display: none;
+}
+.login-page {
+    text-align: center;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    #fb-photo {
+        border: solid 3px white;
+        width: 100px;
+        height: 100px;
+        margin: 15px 0;
+    }
+    .title {
+        background-color: var(--primary);
+        color: var(--secondary);
+        font-size: 50px;
+        padding: 20px 0;
+        width: 100%;
+        text-align: center;
+        border-radius: 10px;
+        margin: 15px 15px;
+    }
+    .login-dashboard {
+        border: black solid 3px;
+        margin-top: 100px;
+        width: 600px;
+        .login-info {
+            color: white;
+            padding: 15px 0;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            // height: 100%;
+            background-color: var(--primary);
+            .form-control {
+                text-align: center;
+                width: 80%;
+                position: relative;
+                margin: 0 30px;
+            }
+            .btn {
+                width: 80%;
+            }
+        }
+        .facebook-connect {
+            padding: 15px 0;
+            border-radius: 10px;
+            background-color: var(--primary);
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+    }
+}

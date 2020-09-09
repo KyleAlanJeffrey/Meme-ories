@@ -1,0 +1,29 @@
+:root {
+  --primary: #4267b2;
+  --secondary: white;
+  --off-primary: #898f9c;
+}
+
+.App {
+  padding-bottom: 50px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.app-nav {
+  background-color: var(--primary);
+  color: var(--secondary);
+  border-radius: 10px 10px 0px 0px;
+}
+
+.app-nav span {
+  font-size: 50px;
+  font-weight: bold;
+}
+
+.app-nav a {
+  color: inherit;
+}
+/*# sourceMappingURL=App.css.map */

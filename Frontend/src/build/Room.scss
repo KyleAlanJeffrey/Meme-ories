@@ -1,0 +1,304 @@
+.slide-in {
+    animation: slide-in-anim 1s ease-out;
+}
+.slide-up {
+    animation: slide-up-anim 1s ease-out;
+}
+.slide-down {
+    animation: slide-down-anim 1s ease-in;
+}
+.loading-screen {
+    position: relative;
+    background-image: url(https://www.premierhealth.com/Content/images/loading.gif);
+    background-size: contain;
+    width: 150px;
+    height: 150px;
+    top: -10%;
+}
+.show {
+    display: block;
+}
+.hide {
+    display: none;
+}
+.game-area {
+    margin-top: 15px;
+    width: 1600px;
+    height: 800px;
+    .host-btn {
+        height: 100%;
+        width: 100%;
+        background-color: var(--success);
+        color: white;
+        font-size: 30px;
+        &:hover {
+            opacity: 0.9;
+        }
+    }
+    .fb-image {
+        width: 100%;
+        height: 100%;
+        background-color: lightgrey;
+        img {
+            height: 100%;
+            width: 100%;
+            object-fit: contain;
+        }
+    }
+    .game-board-header {
+        overflow: hidden;
+        background-color: var(--secondary);
+        filter: drop-shadow(0 0 5px black);
+        border-radius: 10px;
+        width: 100%;
+        text-align: center;
+        padding: 0;
+        .round-title {
+            background-color: grey;
+            height: 100%;
+            font-size: 45px;
+            color: white;
+        }
+    }
+    .game-board {
+        margin: 0 20px;
+        width: 60%;
+        height: 100%;
+        background-color: var(--secondary);
+        filter: drop-shadow(0 0 5px black);
+        border-radius: 10px;
+        padding: 5px;
+        .answer {
+            position: absolute;
+            .text-container {
+                transition: all 0.2s;
+                opacity: 0.5;
+                background-color: var(--primary);
+                border-radius: 15px;
+                padding: 5px 15px;
+                color: white;
+                font-size: 20px;
+                position: relative;
+                &:hover,
+                &:focus {
+                    cursor: pointer;
+                    opacity: 1;
+                    transform: scale(1.2);
+                }
+                span {
+                    display: inline-block;
+                    max-width: 300px;
+                    word-wrap: break-word;
+                }
+                &.active {
+                    opacity: 1;
+                    transform: scale(1.2);
+                }
+            }
+            .reactions {
+                width: 110px;
+                height: 60px;
+                position: absolute;
+                top: -60px;
+                left: calc(100% - 40px);
+                transition: 0.4s ease-in;
+                background-color: lightblue;
+                border-radius: 30px;
+                padding: 5px;
+                animation: bop-in-anim 0.5s;
+                .up,
+                .down {
+                    transition: all 0.1s;
+                    position: relative;
+                    width: 50px;
+                    height: 50px;
+                    padding: 10px;
+                    float: left;
+                    img {
+                        object-fit: contain;
+                        height: 100%;
+                        width: 100%;
+                    }
+                    &:hover {
+                        transform: scale(1.2);
+                        cursor: pointer;
+                    }
+                }
+                .down {
+                    transform: scaleY(-1);
+                }
+            }
+        }
+        .game-input {
+            position: fixed;
+            width: 300px;
+            height: 50px;
+            transition: width 0.2s ease-out, opacity 1s ease-in-out;
+            // animation: shrink-fade-away-anim 1s infinite;
+            &.form {
+                .form-control {
+                    position: absolute;
+                    z-index: 1;
+                    border-radius: 50px;
+                    border: none;
+                    background-color: #f0f2f5;
+                    color: #65676b;
+                    height: 100%;
+                    width: 100%;
+                    .submit {
+                        background-color: var(--primary);
+                    }
+                    &:focus {
+                        outline: none;
+                    }
+                }
+                .btn {
+                    z-index: 2;
+                    position: absolute;
+                    background-color: var(--primary);
+                    height: 80%;
+                    width: 80px;
+                    border-radius: 50px;
+                    top: 0;
+                    margin: 5px;
+                    left: calc(100% - 90px);
+                    color: white;
+                }
+                .drag {
+                    z-index: 0;
+                    position: absolute;
+                    width: 80px;
+                    height: 40px;
+                    left: 35%;
+                    top: -40%;
+                    background-color: lightblue;
+                    border-radius: 40px;
+                    cursor: move;
+                    img {
+                        user-select: none;
+                        position: absolute;
+                        top: -10px;
+                        left: 20px;
+                        width: 50%;
+                        height: 100%;
+                        background-size: contain;
+                    }
+                }
+            }
+        }
+    }
+    .player-list {
+        background-color: var(--secondary);
+        filter: drop-shadow(0 0 5px black);
+        width: 20%;
+        height: 100%;
+        border-radius: 10px;
+        padding: 5px;
+        h1 {
+            text-align: center;
+            color: gray;
+        }
+        .highlight {
+            background-color: var(--primary);
+            color: white;
+        }
+        .player-list-item {
+            transition: all 0.4s;
+            height: 11%;
+            padding: 5px 15px;
+            vertical-align: center;
+            border: solid rgba(128, 128, 128, 0.171) 1px;
+            margin-bottom: 5px;
+            border-radius: 10px;
+            animation: fade-in-anim 1s ease-in;
+            .player-profile-pic {
+                border-radius: 10px;
+                height: 100%;
+            }
+            .name {
+                font-size: large;
+                margin-left: 20px;
+                font-weight: bolder;
+            }
+            .votes {
+                float: right;
+                width: 40%;
+                height: 100%;
+                .upvote,
+                .downvote {
+                    position: relative;
+                    float: left;
+                    width: 50%;
+                    img {
+                        width: 80%;
+                        height: 80%;
+                        object-fit: contain;
+                    }
+                    .score {
+                        position: absolute;
+                        top: 45px;
+                        color: greenyellow;
+                        transform: translateX(15px);
+                    }
+                }
+                .downvote .score {
+                    color: red;
+                }
+            }
+        }
+    }
+}
+@keyframes slide-in-anim {
+    from {
+        transform: translateX(-100vw);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+@keyframes slide-down-anim {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-100vh);
+    }
+}
+
+@keyframes fade-in-anim {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+@keyframes slide-up-anim {
+    from {
+        transform: translateY(110vh);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+@keyframes shrink-fade-away-anim {
+    from {
+        width: 300px;
+        opacity: 1;
+    }
+    to {
+        width: 50;
+        opacity: 0;
+    }
+}
+@keyframes bop-in-anim {
+    0% {
+        transform: scale(0);
+    }
+    80% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
