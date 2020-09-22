@@ -20,7 +20,7 @@ class GameHeader extends Component {
               Start Game
             </button>
           )}
-          {roundInfo && <h1 className="round-title slide-in">Round {this.props.roomInfo.round.number}</h1>}
+          {roundInfo && <h1 className="round-title slide-in">Round {this.props.roomInfo.round}</h1>}
         </div>
       </div>
     );

@@ -16,7 +16,8 @@ export default class App extends React.Component {
     super();
     this.state = {
       accessToken: cookies.get("accessToken"),
-      username: "David Blaine",
+      username: cookies.get("username") ? cookies.get("username") : "No Username",
+      loggedIn: false,
     };
   }
   componentDidMount() {
@@ -25,10 +26,15 @@ export default class App extends React.Component {
   updateUsername = ({ target }) => {
     if (target.value.length > 12) return;
     this.setState({ username: target.value });
+    cookies.set("username", target.value);
   };
   updateAccessToken = (tok) => {
     this.setState({ accessToken: tok });
-    cookies.set("accessToken", tok);
+    if (!tok) cookies.remove("accessToken");
+    else cookies.set("accessToken", tok);
+  };
+  updateLoggedIn = (state) => {
+    this.setState({ loggedIn: state });
   };
   render() {
     return (
@@ -37,7 +43,12 @@ export default class App extends React.Component {
           <Nav />
           <Switch>
             <Route path="/room/">
-              <Room username={this.state.username} joinGame={this.joinGame}></Room>
+              <Room
+                username={this.state.username}
+                accessToken={this.state.accessToken}
+                loggedIn={this.state.loggedIn}
+                updateLoggedIn={this.updateLoggedIn}
+              ></Room>
             </Route>
             <Route path="/">
               <Login
@@ -45,6 +56,8 @@ export default class App extends React.Component {
                 updateAccessToken={this.updateAccessToken}
                 username={this.state.username}
                 updateUsername={this.updateUsername}
+                loggedIn={this.state.loggedIn}
+                updateLoggedIn={this.updateLoggedIn}
               />
             </Route>
           </Switch>

@@ -1,6 +1,5 @@
 const express = require("express");
 const app = express(),
-  // cookieParser = require("cookie-parser"),
   server = require("http").createServer(app),
   io = require("socket.io")(server),
   mongoose = require("mongoose"),
@@ -8,12 +7,16 @@ const app = express(),
   UserData = require("./models/User");
 require("dotenv/config");
 
-// app.use(cookieParser());
 server.listen(4000, () => {
   console.log("Listening on Port " + 4000 + "...");
 });
 //Database, all the options are to fix deprecation warnings
-mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }, () => {
+mongoose.connect(process.env.DB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true }, (err) => {
+  if (err) {
+    console.log("Error Connecting to Database");
+    console.log(err);
+    return;
+  }
   console.log("Connected to Database...");
 });
 // Sockets
@@ -41,13 +44,18 @@ io.on("connection", (socket) => {
     });
     userData.save((err) => {
       if (err) {
-        throw console.log(`DB::::Error Creating User ${err}::::`);
+        throwErrorMessage("db", "Error Creating New User", err);
       } else {
         console.log("DB::::Created new User on database!::::");
-        console.log(userData);
       }
     });
     callback({ accessToken: userData._id });
+  });
+  socket.on("deleteUserData", (data) => {
+    UserData.findByIdAndDelete(data.accessToken, (err, res) => {
+      if (err) throwErrorMessage("db", "Error Deleting User", err);
+      else console.log("DB::::Deleted User on database!::::");
+    });
   });
   socket.on("findGame", (data, callback) => {
     let room = rooms.findOpenRoom();
@@ -60,3 +68,15 @@ io.on("connection", (socket) => {
     else room.state.parseMessage(data, socket);
   });
 });
+
+function throwErrorMessage(component, message, err, DEBUG_MODE = true) {
+  if (!DEBUG_MODE) return;
+  switch (component) {
+    case "db":
+      throw console.log(`\n\nDB::::${message} -> ${err}::::\n\n`);
+    default:
+      throw console.log(`\n\n<-----ERROR: ${message} -> ${err}----->\n\n`);
+  }
+}
+
+module.exports = {throwErrorMessage};

@@ -22,7 +22,7 @@ class GameBoard extends Component {
     return (
       <div className={"game-board" + this.state.classes}>
         {this.props.fbImage !== null ? <FBImage src={this.props.fbImage} /> : null}
-        {this.props.roomInfo.state === "voting" ? <Answers usersData={this.props.usersData} myUser={this.state.myUser} /> : null}
+        <Answers usersData={this.props.usersData} myUser={this.state.myUser} /> 
         {this.props.roomInfo.state === "submitting" ? <InputField classes="game-input" onSubmit={this.submit}></InputField> : null}
       </div>
     );

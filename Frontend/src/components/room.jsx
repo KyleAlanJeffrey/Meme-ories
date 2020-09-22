@@ -5,7 +5,9 @@ import GameBoard from "./gameBoard";
 import GameHeader from "./gameHeader";
 import { withRouter } from "react-router";
 import "../build/Room.css";
-import { Button } from "./button";
+const UIDGenerator = require('uid-generator');
+const uidgen = new UIDGenerator(); // Default is a 128-bit UID encoded in base58
+ 
 function getRoomID() {
   return window.location.href.split("/")[4];
 }
@@ -13,7 +15,7 @@ class Room extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      id: null,
+      id: uidgen.generate(), //Use this for the user id later so we doont query by username
       highlightUsers: [],
       dataLoaded: false,
       roomID: getRoomID(),
@@ -22,20 +24,24 @@ class Room extends Component {
       myUser: {},
       showAnswerInput: true,
       forceBoardShow: false,
-      cookieData: {
-        fbID: cookies.get("fbID"),
-        profilePic: cookies.get("fbImage"),
-        username: cookies.get("username"),
-        accessToken: cookies.get("accessToken"),
-      },
     };
   }
   componentWillMount() {
+    // This attaches event listener event to homepage
     window.addEventListener("beforeunload", (event) => {
       this.sendServerMessage("leftGame", { userData: this.state.myUser });
     });
   }
   componentDidMount() {
+    this.socketListenEvents();
+    socket.emit("getUserData", { accessToken: this.props.accessToken }, (serverData) => {
+      if(!serverData.error){
+        this.sendServerMessage("joinedGame", { username: this.props.username, accessToken: this.props.accessToken, fbInfo: serverData });
+        this.props.updateLoggedIn(true);
+      }else{this.props.updateLoggedIn(false);}
+    });
+  }
+  socketListenEvents = () => {
     socket.on("redirect", (ext) => {
       this.props.history.push(ext);
     });
@@ -44,14 +50,12 @@ class Room extends Component {
     });
     socket.on("userLeft", (serverData) => {
       const usersLeft = this.state.usersData.filter((user) => {
-        return user.id != serverData.userData.id;
+        return user.id !== serverData.userData.id;
       });
       this.setState({ usersData: usersLeft });
     });
-    socket.on("startRound", (serverData) => {
-      this.setState({ usersData: serverData.usersData, roomInfo: serverData.roomInfo });
-    });
     socket.on("loadGame", (serverData) => {
+      console.log(serverData)
       if (serverData.roomInfo.state === "endRound") {
         this.setState({ forceBoardShow: true });
         setTimeout(() => {
@@ -61,12 +65,11 @@ class Room extends Component {
       const me = this.getMyUser(serverData.usersData);
       this.setState({ myUser: me, usersData: serverData.usersData, roomInfo: serverData.roomInfo, dataLoaded: true });
     });
-    this.sendServerMessage("joinedGame", { userData: this.state.cookieData });
-  }
+  };
   getMyUser = (usersData) => {
     return usersData.find((user) => {
       // TEMPORARY, FOR LOCAL DEVELOPMENT because can't query by fbID
-      return user.username === this.state.cookieData.username;
+      return user.username === this.props.username;
     });
   };
   startGame = (e) => {
@@ -87,7 +90,7 @@ class Room extends Component {
 
   render() {
     if (this.state.dataLoaded) {
-      const showBoard = (this.state.roomInfo.state != "lobby" && this.state.roomInfo.state != "endRound") || this.state.forceBoardShow;
+      const showBoard = (this.state.roomInfo.state === "submitting" || this.state.roomInfo.state === "voting")
 
       return (
         <div className="container-fluid game-area">
@@ -107,7 +110,7 @@ class Room extends Component {
                 usersData={this.state.usersData}
                 roomInfo={this.state.roomInfo}
                 showInput={this.state.showAnswerInput}
-                fbImage={this.state.roomInfo.round.image.source}
+                fbImage={this.state.roomInfo.image.source}
                 onSubmit={this.submitAnswer}
               ></GameBoard>
             ) : null}

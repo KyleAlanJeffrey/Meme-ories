@@ -1,84 +1,78 @@
 const fetch = require("node-fetch");
 const { Lobby } = require("./States");
+const UserData = require("./models/User");
+const { throwErrorMessage } = require("./Functions");
 let line = 0;
 class User {
-  constructor(username, profilePic, accesstoken, fbID) {
-    this.username = username;
-    this.profilePic = profilePic;
-    this.accessToken = accesstoken;
-    this.fbID = fbID;
+  constructor(accessToken, username, fbInfo) {
     this.id = Room.createID();
+    this.username = username;
+    this.accessToken = accessToken;
+    this.fbInfo = { id: fbInfo.fbID, accessToken: fbInfo.fbAccessToken, profilePicture: fbInfo.fbPictureURL, name: fbInfo.name };
     this.lead = false;
     this.answer = null;
     this.upvotes = 0;
     this.downvotes = 0;
     this.chosen = false;
-    this.albumIDs = null;
-    this.photoIDs = null;
+    this.photosLoaded = false;
   }
-  getPublic() {
-    return { username: this.username, profilePic: this.profilePic };
+  getPublicData() {
+    return {
+      username: this.username,
+      profilePic: this.fbInfo.profilePicture,
+      upvotes: this.upvotes,
+      downvotes: this.downvotes,
+      chosen: this.chosen,
+      lead: this.lead,
+      answer: this.answer,
+      id: this.id,
+    };
   }
-  async loadAlbumIDs() {
-    const url = `https://graph.facebook.com/v8.0/${this.fbID}/albums?access_token=${this.accessToken}`;
+  async loadRandomAlbum() {
+    /// SHOULD EVENTUALLY CHECK IF USER ALREADY HAS AN ALBUM LOADED
+    const url = `https://graph.facebook.com/v8.0/${this.fbInfo.id}/albums?fields=count,name,description&access_token=${this.fbInfo.accessToken}`;
     let res = await fetch(url);
     if (res.status != 200) {
       throw console.log(
         `\n\n:::::ERROR: Fetching Album ID's::::: \n -- Status Code: ${res.status} - ${res.statusText} -- \n\n -------> Try logging out and back into facebook!\n\n`
       );
     }
-    this.albumIDs = await res.json();
-    this.albumIDs = this.albumIDs.data;
-
-    // console.log("ALBUM IDS--------------");
-    // console.log(this.albumIDs);
-    return Promise.resolve();
+    const albums = await res.json();
+    const albumsFiltered = albums.data.filter((album) => {
+      return album.count > 5;
+    });
+    const cap = albumsFiltered.length;
+    const rng = Math.floor(cap * Math.random());
+    const albumID = albumsFiltered[rng].id;
+    await this.loadAlbum(albumID);
   }
   async loadAlbum(id) {
-    let res = await fetch(`https://graph.facebook.com/v8.0/${id}/photos?access_token=${this.accessToken}`);
-    const photoIDs = await res.json();
-    this.photoIDs = photoIDs.data;
-    // console.log('Photo IDS--------------');
-    // console.log(this.photoIDs);
-
-    return Promise.resolve();
-  }
-  async loadRandomAlbum() {
-    const r = this.getRandomAlbumID();
-    await this.loadAlbum(r);
-    return Promise.resolve();
-  }
-  getRandomAlbumID() {
-    const cap = this.albumIDs.length;
-    if (!cap) {
-      console.log("No album IDs for user");
-      return;
-    }
-    const rng = Math.floor(cap * Math.random());
-    return this.albumIDs[rng].id;
+    let res = await fetch(`https://graph.facebook.com/v8.0/${id}/photos?fields=link,name,backdated_time&access_token=${this.fbInfo.accessToken}`);
+    const photos = await res.json();
+    UserData.updateOne({ _id: this.accessToken }, { fbPictures: photos.data }, (err, res) => {
+      if (err) throwErrorMessage("db", "ERROR: Updating Facebook Photos", err);
+      console.log("DB::::Loaded Album:::::");
+      this.photosLoaded = true;
+    });
   }
   async getRandomPic() {
-    if (this.albumIDs == null) {
-      await this.loadAlbumIDs();
-    }
-    if (this.photoIDs == null) {
-      await this.loadRandomAlbum();
-    }
-    const cap = this.photoIDs.length;
+    //check if already has fb pictures loaded, if not, load them,
+    // NEED TO REMOVVE THE PHOTO FROM DATABASE
+    const dbUserData = await UserData.findById(this.accessToken, (err, dbUserData) => {
+      if (err) throwErrorMessage("db", "ERROR: Getting Facebook Photo", err);
+    });
+    const pictureArray = dbUserData.fbPictures;
+    console.log(pictureArray);
+    const cap = pictureArray.length;
     const rng = Math.floor(cap * Math.random());
-    const picID = this.photoIDs[rng].id;
-    const pic = await fetch(`https://graph.facebook.com/v8.0/${picID}?fields=source&access_token=${this.accessToken}`);
-    return await pic.json();
+    const pictureID = pictureArray[rng].id;
+    // This fetch returns several formats of image
+    const picRAW = await fetch(`https://graph.facebook.com/v8.0/${pictureID}?fields=images&access_token=${this.fbInfo.accessToken}`);
+    const picArray = await picRAW.json();
+    return Promise.resolve(picArray.images[0]);
   }
 }
 
-class Round {
-  constructor(num) {
-    this.number = num;
-    this.votes = 0;
-    this.image = null;
-  }
-}
 class Room {
   constructor(id, isPrivate, io) {
     this.id = id;
@@ -91,58 +85,16 @@ class Room {
     this.roomInfo = {
       state: "lobby",
       running: false,
-      round: new Round(1),
+      round: 0,
+      image: null,
     };
   }
   async parseUserEvent(data, socket) {
     console.log(`${line}:Recieving --${data.event}-- event`);
     line++;
     switch (data.event) {
-      case "joinedGame": {
-        this.addUser(new User(data.userData.username, data.userData.profilePic, data.userData.accessToken, data.userData.fbID));
-        socket.join(this.id);
-        // if (line == 1) this.addFakeUsers();
-        this.sendGameMessage("loadGame", { usersData: this.users, roomInfo: this.roomInfo });
-        break;
-      }
-      case "leftGame": {
-        this.removeUser(data.userData.id);
-        socket.leave(this.id);
-        if (data.lead) this.users[0].lead = true;
-        this.sendGameMessage("userLeft", { userData: data.userData });
-        break;
-      }
-      case "startGame": {
-        this.roomInfo.running = true;
-        this.roomInfo.state = "submitting";
-        this.roomInfo.state = "choosePlayer";
-        const user = this.randomSelect();
-        user.chosen = true;
-        const pic = await user.getRandomPic();
-        this.roomInfo.round.image = pic;
-        this.sendGameMessage("startRound", { usersData: this.users, roomInfo: this.roomInfo });
-        break;
-      }
-      case "submitAnswer": {
-        const user = this.getUser(data.userData.id);
-        user.answer = data.answer;
-        if (this.roomInfo.round.answers == this.users.length) {
-          this.roomInfo.state = "voting";
-          this.sendGameMessage("loadGame", { usersData: this.users, roomInfo: this.roomInfo });
-          setTimeout(() => {
-            this.roomInfo.state = "endRound";
-            this.sendGameMessage("loadGame", { usersData: this.users, roomInfo: this.roomInfo });
-          }, 25000);
-        }
-        break;
-      }
-      case "submitVote": {
-        const userVoted = this.getUser(data.userVotedData.id);
-        if (data.vote == "up") userVoted.upvotes++;
-        if (data.vote == "down") userVoted.downvotes++;
-        this.sendGameMessage("loadGame", { usersData: this.users, roomInfo: this.roomInfo });
-        break;
-      }
+
+
     }
   }
   randomSelect() {
@@ -158,25 +110,24 @@ class Room {
   getUsersPublic() {
     const usersPublic = [];
     this.users.forEach((user) => {
-      usersPublic.push(user.getPublic());
+      usersPublic.push(user.getPublicData());
     });
+    return usersPublic;
   }
-  addFakeUsers() {
-    this.addUser(new User(Math.random(), null, null));
-    this.addUser(new User(Math.random(), null, null));
-    this.addUser(new User(Math.random(), null, null));
-    this.addUser(new User(Math.random(), null, null));
-    this.addUser(new User(Math.random(), null, null));
-  }
-  addUser(username, profilePic, accessToken, fbID) {
-    this.users.push(new User(username, profilePic, accessToken, fbID));
+  addUser(accessToken, username, fbInfo) {
+    const user = new User(accessToken, username, fbInfo);
+    this.users.push(user);
     if (this.users.length == this.ROOM_SIZE) this.full = true;
     if (this.users.length == 1) user.lead = true;
+    return user;
   }
   removeUser(id) {
+    const user = this.getUser(id);
     this.users = this.users.filter((user) => {
       return user.id != id;
     });
+    if (user.lead && this.users.length != 0) this.users[0].lead = true;
+    return user.getPublicData();
   }
   sendGameMessage(event, data) {
     console.log(`${line}:Sending --${event}-- event`);
@@ -186,7 +137,7 @@ class Room {
   sendGameData() {
     console.log(`${line}:Sending --loadGame-- event`);
     line++;
-    this.io.to(this.id).emit("loadGame", { usersData: this.users, roomInfo: this.roomInfo });
+    this.io.to(this.id).emit("loadGame", { usersData: this.getUsersPublic(), roomInfo: this.roomInfo });
   }
   static createID() {
     let A = 65;

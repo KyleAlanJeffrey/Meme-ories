@@ -7,44 +7,47 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      fbInfo: { id: null, profilePicture: null, accessToken: null, name: "Not Signed In", loggedIn: false },
+      fbInfo: { id: null, profilePicture: null, accessToken: null, name: "Not Signed In"},
     };
   }
-  componentDidMount(){
+  componentDidMount() {
     socket.emit("getUserData", { accessToken: this.props.accessToken }, (serverData) => {
-      if(serverData.error){
-        console.log('No User Data found from stored accessToken. Might be expired!');
-        cookies.remove('accessToken');
-      }else{
-        this.setState({fbInfo:{accessToken:serverData.fbAccessToken, name: serverData.name, profilePicture: serverData.fbPictureURL, loggedIn: true}})        
+      if (serverData.error) {
+        console.log("No User Data found from stored accessToken. Might be expired!");
+        this.props.updateAccessToken(null);
+      } else {
+        this.setState({
+          fbInfo: { accessToken: serverData.fbAccessToken, name: serverData.name, profilePicture: serverData.fbPictureURL},
+        });
+        this.props.updateLoggedIn(true);
         this.props.updateAccessToken(serverData._id);
       }
-      console.log(serverData);
     });
-
   }
   responseFacebook = (response) => {
     if (response.status === "unknown") {
       console.log("Error loading facebook data!");
     } else {
-      console.log(response);
       this.setState({
         fbInfo: {
           name: response.name,
           profilePicture: response.picture.data.url,
           id: response.id,
-          loggedIn: true,
           accessToken: response.accessToken,
         },
       });
+      this.props.updateLoggedIn(true);
       socket.emit("createUserData", this.state.fbInfo, (serverData) => {
-        cookies.set("accessToken", serverData.accessToken);
+        this.props.updateAccessToken(serverData.accessToken);
       });
     }
   };
+  login = () => {};
   logout = () => {
-    console.log("Logging");
-    cookies.remove("accessToken");
+    socket.emit("deleteUserData", { accessToken: this.props.accessToken });
+    this.setState({ fbInfo: { id: null, profilePicture: null, accessToken: null, name: "Not Signed In", loggedIn: false } });
+    this.props.updateLoggedIn(false);
+    this.props.updateAccessToken(null);
   };
   findGame = () => {
     socket.emit("findGame", this.state, (data) => {
@@ -52,7 +55,7 @@ class Login extends Component {
     });
   };
   componentDidUpdate() {
-    if (this.state.fbInfo.loggedIn) {
+    if (this.props.loggedIn) {
       document.getElementsByClassName("fb-login-button")[0].textContent = "Logged In";
       document.getElementsByClassName("fb-login-button")[0].setAttribute("disabled", "true");
     } else {
@@ -62,7 +65,7 @@ class Login extends Component {
   }
   render() {
     let logoutClasses = "hidden";
-    if (this.state.fbInfo.loggedIn) {
+    if (this.props.loggedIn) {
       logoutClasses = "";
     }
     return (
@@ -113,6 +116,7 @@ class Login extends Component {
                 <img id="fb-photo" alt="FB Profile Pic" src={this.state.fbInfo.profilePicture}></img>
                 <h2 style={{ margin: "0 0 15px 0" }}>{this.state.fbInfo.name}</h2>
                 <FacebookLogin
+                  onClick={this.login}
                   appId="3307740772625784"
                   autoLoad={false}
                   fields="name,email,picture"
