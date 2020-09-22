@@ -1,4 +1,4 @@
-# Facebook Review
+# Facebook Review (UNFINISHED)
 A web app based on react that randomly selects a photo to show to the whole room. Users are then allowed to add captions
 
 ## TODO 
